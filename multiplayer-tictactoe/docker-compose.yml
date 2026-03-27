@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_DB: nakama
+      POSTGRES_PASSWORD: localdb
+    ports:
+      - "5432:5432"
+
+  nakama:
+    image: heroiclabs/nakama:3.22.0
+    depends_on:
+      - postgres
+    restart: on-failure
+    entrypoint:
+      - "/bin/sh"
+      - "-ecx"
+      - >
+        sleep 10 &&
+        /nakama/nakama migrate up --database.address postgres:localdb@postgres:5432/nakama &&
+        exec /nakama/nakama
+        --name nakama1
+        --database.address postgres:localdb@postgres:5432/nakama
+        --logger.level DEBUG
+        --session.token_expiry_sec 7200
+        --runtime.path /nakama/data/modules
+    volumes:
+      - ./nakama/build:/nakama/data/modules
+    ports:
+      - "7349:7349"
+      - "7350:7350"
+      - "7351:7351"
