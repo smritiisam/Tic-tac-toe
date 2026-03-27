@@ -1,14 +1,8 @@
 FROM heroiclabs/nakama:3.22.0
 
-COPY ./build /nakama/data/modules
+COPY build /nakama/data/modules
+COPY start-nakama.sh /start-nakama.sh
 
-ENTRYPOINT ["/bin/sh", "-ecx"]
-CMD ["\
-    /nakama/nakama migrate up --database.address $DB_ADDRESS && \
-    exec /nakama/nakama \
-    --name nakama1 \
-    --database.address $DB_ADDRESS \
-    --logger.level DEBUG \
-    --session.token_expiry_sec 7200 \
-    --runtime.path /nakama/data/modules \
-    "]
+RUN chmod +x /start-nakama.sh
+
+CMD ["/start-nakama.sh"]
