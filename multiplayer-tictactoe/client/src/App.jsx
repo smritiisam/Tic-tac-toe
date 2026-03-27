@@ -6,6 +6,8 @@ import {
   listMatches,
   sendMove,
 } from "./api/nakama";
+import Board from "./components/Board";
+import MatchInfo from "./components/MatchInfo";
 
 export default function App() {
   const [username, setUsername] = useState("");
@@ -16,6 +18,15 @@ export default function App() {
   const [joinedMatchId, setJoinedMatchId] = useState("");
   const [gameState, setGameState] = useState(null);
   const [availableMatches, setAvailableMatches] = useState([]);
+  const [myUserId, setMyUserId] = useState("");
+
+  const myPlayer = gameState?.players?.find((p) => p.userId === myUserId);
+
+  const isMyTurn =
+    !!gameState &&
+    !!myPlayer &&
+    gameState.status === "PLAYING" &&
+    gameState.currentTurn === myPlayer.mark;
 
   async function handleConnect() {
     try {
@@ -33,6 +44,7 @@ export default function App() {
 
       setSession(newSession);
       setSocket(newSocket);
+      setMyUserId(newSession.user_id);
       setStatus("Connected to Nakama successfully");
     } catch (err) {
       console.error(err);
@@ -40,7 +52,6 @@ export default function App() {
     }
   }
 
-  
   async function handleCreateMatch() {
     try {
       const result = await createMatch(session);
@@ -58,6 +69,8 @@ export default function App() {
   }
 
   async function handleJoinMatch(id) {
+    if (!id) return;
+
     try {
       await socket.joinMatch(id);
       setJoinedMatchId(id);
@@ -81,43 +94,16 @@ export default function App() {
   }
 
   async function handleCellClick(index) {
-    if (!socket || !joinedMatchId) return;
+    if (!socket || !joinedMatchId || !gameState || !myPlayer) return;
+    if (gameState.status !== "PLAYING") return;
+    if (!isMyTurn) return;
+    if (gameState.board[index] !== null) return;
+
     try {
       await sendMove(socket, joinedMatchId, index);
     } catch (err) {
       console.error(err);
     }
-  }
-
-  function renderBoard() {
-    if (!gameState || !gameState.board) return null;
-
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 80px)",
-          gap: "10px",
-          marginTop: "20px",
-        }}
-      >
-        {gameState.board.map((cell, index) => (
-          <button
-            key={index}
-            onClick={() => handleCellClick(index)}
-            style={{
-              width: "80px",
-              height: "80px",
-              fontSize: "28px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            {cell || ""}
-          </button>
-        ))}
-      </div>
-    );
   }
 
   return (
@@ -186,18 +172,28 @@ export default function App() {
             <pre>{JSON.stringify(gameState, null, 2)}</pre>
           </div>
 
-          <div style={{ marginTop: 20 }}>
-            <h3>Board</h3>
-            {renderBoard()}
-          </div>
+          <MatchInfo
+            gameState={gameState}
+            myPlayer={myPlayer}
+            isMyTurn={isMyTurn}
+          />
 
           {gameState && (
-            <div style={{ marginTop: 20 }}>
-              <div>Status: {gameState.status}</div>
-              <div>Current Turn: {gameState.currentTurn}</div>
-              <div>
-                Winner: {gameState.winner ? gameState.winner : "None"}
-              </div>
+            <Board
+              board={gameState.board}
+              onCellClick={handleCellClick}
+              canPlay={!!isMyTurn}
+              status={gameState.status}
+            />
+          )}
+
+          {gameState && gameState.status === "FINISHED" && (
+            <div style={{ marginTop: 20, fontWeight: "bold" }}>
+              {gameState.winner === "DRAW"
+                ? "Match Draw"
+                : gameState.winner === myPlayer?.mark
+                ? "You Won"
+                : "You Lost"}
             </div>
           )}
         </>
