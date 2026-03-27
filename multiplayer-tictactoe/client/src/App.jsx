@@ -4,6 +4,7 @@ import {
   connectSocket,
   createMatch,
   listMatches,
+  sendMove,
 } from "./api/nakama";
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
     }
   }
 
+  
   async function handleCreateMatch() {
     try {
       const result = await createMatch(session);
@@ -76,6 +78,46 @@ export default function App() {
       console.error(err);
       setStatus("List matches failed");
     }
+  }
+
+  async function handleCellClick(index) {
+    if (!socket || !joinedMatchId) return;
+    try {
+      await sendMove(socket, joinedMatchId, index);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderBoard() {
+    if (!gameState || !gameState.board) return null;
+
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 80px)",
+          gap: "10px",
+          marginTop: "20px",
+        }}
+      >
+        {gameState.board.map((cell, index) => (
+          <button
+            key={index}
+            onClick={() => handleCellClick(index)}
+            style={{
+              width: "80px",
+              height: "80px",
+              fontSize: "28px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            {cell || ""}
+          </button>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -143,6 +185,21 @@ export default function App() {
             <h3>Game State</h3>
             <pre>{JSON.stringify(gameState, null, 2)}</pre>
           </div>
+
+          <div style={{ marginTop: 20 }}>
+            <h3>Board</h3>
+            {renderBoard()}
+          </div>
+
+          {gameState && (
+            <div style={{ marginTop: 20 }}>
+              <div>Status: {gameState.status}</div>
+              <div>Current Turn: {gameState.currentTurn}</div>
+              <div>
+                Winner: {gameState.winner ? gameState.winner : "None"}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
