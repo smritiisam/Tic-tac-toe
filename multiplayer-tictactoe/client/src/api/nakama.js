@@ -8,13 +8,7 @@ const client = new Client(
 );
 
 export async function authenticateUser(username) {
-  const existing = localStorage.getItem("deviceId");
-  const deviceId = existing || crypto.randomUUID();
-
-  if (!existing) {
-    localStorage.setItem("deviceId", deviceId);
-  }
-
+  const deviceId = crypto.randomUUID();
   const session = await client.authenticateDevice(deviceId, true, username);
   return session;
 }
@@ -189,6 +183,10 @@ function matchLeave(ctx, logger, nk, dispatcher, tick, state, presences) {
     return !leavingIds[p.userId];
   });
 
+  if (state.players.length === 0) {
+    return null;
+  }
+
   if (state.players.length < 2) {
     state.status = "WAITING";
   }
@@ -249,6 +247,8 @@ function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
     if (result) {
       state.winner = result;
       state.status = "FINISHED";
+      broadcastState(dispatcher, state);
+      return null;
     } else {
       state.currentTurn = state.currentTurn === "X" ? "O" : "X";
     }
@@ -258,7 +258,6 @@ function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
 
   return { state: state };
 }
-
 function matchTerminate(
   ctx,
   logger,

@@ -284,6 +284,20 @@ export default function App() {
     setCurrentPage(PAGES.LOBBY);
   }, [session, joinedMatchId, gameState]);
 
+  useEffect(() => {
+    if (!gameState || gameState.status !== "FINISHED") return;
+
+    const timer = setTimeout(() => {
+      setJoinedMatchId("");
+      setGameState(null);
+      setMatchIdInput("");
+      setCurrentPage(PAGES.LOBBY);
+      setStatus("Match finished");
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [gameState]);
+
   async function handleConnect() {
     if (!username.trim()) return;
 
