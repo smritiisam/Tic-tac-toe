@@ -5,4 +5,5 @@ COPY start-nakama.sh /start-nakama.sh
 
 RUN chmod +x /start-nakama.sh
 
-CMD ["/start-nakama.sh"]
+ENTRYPOINT []
+CMD ["/bin/sh", "/start-nakama.sh"]

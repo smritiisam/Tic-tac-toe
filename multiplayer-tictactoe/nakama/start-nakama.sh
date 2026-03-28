@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 
+echo "DATABASE_URL is set"
+echo "Starting Nakama with custom DB config"
+
 /nakama/nakama migrate up --database.address "$DATABASE_URL"
 
 exec /nakama/nakama \
