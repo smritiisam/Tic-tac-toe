@@ -1,5 +1,12 @@
 import { Client } from "@heroiclabs/nakama-js";
 
+console.log("NAKAMA ENV", {
+  host: import.meta.env.VITE_NAKAMA_HOST,
+  port: import.meta.env.VITE_NAKAMA_PORT,
+  ssl: import.meta.env.VITE_NAKAMA_USE_SSL,
+  serverKey: import.meta.env.VITE_NAKAMA_SERVER_KEY,
+});
+
 const client = new Client(
   import.meta.env.VITE_NAKAMA_SERVER_KEY,
   import.meta.env.VITE_NAKAMA_HOST,
@@ -256,6 +263,7 @@ function matchLoop(ctx, logger, nk, dispatcher, tick, state, messages) {
     broadcastState(dispatcher, state);
   }
 
+  logger.info("MOVE received in matchLoop");
   return { state: state };
 }
 function matchTerminate(

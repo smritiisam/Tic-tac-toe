@@ -302,8 +302,15 @@ export default function App() {
     if (!username.trim()) return;
 
     try {
+      console.log("Starting auth...");
       const newSession = await authenticateUser(username.trim());
+      console.log("Auth success:", newSession);
+
+      console.log("Auth success:", newSession);
+
       const newSocket = await connectSocket(newSession);
+      console.log("Starting socket connect...");
+
 
       newSocket.onmatchdata = (message) => {
         const text = new TextDecoder().decode(message.data);

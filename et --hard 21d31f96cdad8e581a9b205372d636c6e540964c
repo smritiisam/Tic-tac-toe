@@ -1,0 +1,10 @@
+[33mf0b1ea9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Added feature: A single name can be repeated
+[33m21d31f9[m fixed package.json version incompatibilites
+[33m0d13b63[m changed for deployment at render
+[33m5f4a7c1[m DOckerfile vhanged for path
+[33m2e17875[m changes for deployment
+[33m5163fd2[m A fresh Id for each user instead of localstorage, even in the same browser(helped with the same name for one browser), revert the users back to create match page after the game is over, cleanup of room is not setup properly yet
+[33m01a4761[m improved UI, put, separated logics with pages and put navigatioon for each
+[33m5ceeb66[m identifies the user, allow moves only when its the user's turn, disabled filled cells and finished game clicks, cleaned the UI into separate components
+[33ma78b37c[m both the users can join the match, created cells for the match, both clients get updated, winner appears
+[33m0f36f5d[m Nakama SDK & server connected, creating match and showing list of matches, join match, server state broadcast
