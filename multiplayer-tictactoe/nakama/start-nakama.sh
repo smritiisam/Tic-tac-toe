@@ -3,6 +3,11 @@ set -eu
 
 echo "DATABASE_URL is set"
 echo "Starting Nakama with custom DB config"
+echo "DATABASE_URL is set"
+echo "Starting Nakama with custom DB config"
+echo "NAKAMA_SERVER_KEY=${NAKAMA_SERVER_KEY}"
+echo "NAKAMA_HTTP_KEY=${NAKAMA_HTTP_KEY}"
+
 
 /nakama/nakama migrate up --database.address "$DATABASE_URL"
 
